@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação: A Piada Certa na Hora Certa</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --cor-fundo-app: #e5ddd5;
+            --cor-fundo-tela: #f0f2f5;
+            --cor-balao-enviado: #d9fdd3;
+            --cor-balao-recebido: #ffffff;
+            --cor-header: #00a884;
+        }
+
+        body {
+            background-color: var(--cor-fundo-tela);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .mobile-frame {
+            width: 100%;
+            max-width: 400px;
+            height: 90vh;
+            max-height: 800px;
+            background-color: #fff;
+            border: 10px solid #111;
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: var(--cor-header);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .chat-header .contact-name {
+            font-weight: bold;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .message.sent {
+            background-color: var(--cor-balao-enviado);
+            align-self: flex-end;
+        }
+
+        .message.received {
+            background-color: var(--cor-balao-recebido);
+            align-self: flex-start;
+        }
+        
+        .message.typing {
+            font-style: italic;
+            color: #888;
+        }
+
+        .chat-options {
+            padding: 10px;
+            background-color: var(--cor-fundo-tela);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        
+        .chat-options button {
+            border-radius: 20px;
+            border: 1px solid var(--cor-header);
+            color: var(--cor-header);
+        }
+
+        #feedback-screen {
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-frame">
+        <div class="chat-header">
+            <img src="https://placehold.co/100x100/EFEFEF/333?text=L" alt="Avatar">
+            <div class="contact-info">
+                <div class="contact-name">Lucas</div>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <!-- As mensagens aparecerão aqui -->
+        </div>
+
+        <div class="chat-options" id="chat-options">
+            <!-- As opções de resposta aparecerão aqui -->
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const chatOptions = document.getElementById('chat-options');
+
+        const userChoices = [];
+
+        const conversationFlow = [
+            // Turno 1
+            {
+                friendMessage: "Léo, tô olhando pra esse slide em branco há uma hora. Acho que meu cérebro derreteu. Não vamos conseguir terminar isso a tempo.",
+                options: [
+                    { text: "Calma! O primeiro slide é o mais difícil. Pensa nele como a rolha da garrafa de ketchup, depois o resto vem fácil.", type: "Empático", feedback: "Boa! Você usou uma analogia divertida e propôs colaboração, validando o sentimento dele." },
+                    { text: "Se te consola, eu passei a manhã tentando alinhar duas caixas no slide e quase desisti da carreira.", type: "Autodepreciativo", feedback: "Cria camaradagem, mas não ajuda a resolver o problema. O foco deve ser motivá-lo." },
+                    { text: "Relaxa, na pior das hipóteses a gente apresenta um slide em branco e chama de 'arte minimalista'.", type: "Irônico", feedback: "Arriscado. O sarcasmo pode aumentar o estresse dele se ele não perceber a brincadeira no meio da pressão." },
+                    { text: "É o famoso 'bloqueio criativo'. Dizem que se você piscar 3 vezes, uma ideia genial aparece. Ou só fica com o olho seco.", type: "Observacional", feedback: "Engraçado, mas um pouco passivo. A melhor abordagem é aquela que une humor e uma sugestão de ação." }
+                ]
+            },
+            // Turno 2
+            {
+                friendMessage: "Hahaha, boa. Mas sério, a parte dos dados tá muito confusa. Não sei como deixar isso interessante.",
+                options: [
+                    { text: "Que tal a gente transformar os dados numa história? Tipo 'O Retorno do Lucro'. Já imagino o gráfico subindo ao som de uma trilha épica.", type: "Observacional", feedback: "Perfeito! Usar a criatividade para reenquadrar um problema é uma das melhores formas de usar o humor no trabalho." },
+                    { text: "Eu sei, dados são chatos. Mas pensa que cada número desses é um passo a mais pra nossa sexta-feira de paz. Foco na recompensa!", type: "Empático", feedback: "Muito bom. Você validou o sentimento dele e usou o humor para focar em um objetivo positivo em comum." },
+                    { text: "É só colocar uns gráficos de pizza coloridos. Ninguém entende, mas todo mundo acha que é profissional.", type: "Irônico", feedback: "É uma piada comum, mas pode dar a entender que você não se importa com a qualidade do trabalho." },
+                    { text: "Você tá falando com o cara que quase reprovou em matemática. Minha ajuda com dados é torcer pra calculadora não bugar.", type: "Autodepreciativo", feedback: "Cuidado ao se diminuir. Isso pode minar sua credibilidade como um parceiro de equipe." }
+                ]
+            },
+            // Turno 3
+            {
+                friendMessage: "Curti a ideia da história! Beleza, acho que consigo organizar. Mas ainda falta o design... tô sem nenhuma criatividade pra isso.",
+                options: [
+                    { text: "Fica tranquilo, foca nos dados que eu pego o design. A gente é uma dupla, lembra? Você é o cérebro, eu deixo as coisas bonitas.", type: "Empático", feedback: "Excelente! Você demonstrou parceria, dividiu as tarefas e usou um humor leve para valorizar a colaboração." },
+                    { text: "Vamos usar aquele template padrão da empresa. É meio feio, mas pelo menos é um 'feio corporativo', ninguém pode reclamar.", type: "Observacional", feedback: "Uma piada interna e pragmática. Mostra que você entende a cultura da empresa e sabe rir dela." },
+                    { text: "É só usar a fonte Comic Sans com WordArt. Sucesso garantido nos anos 90, por que não agora?", type: "Irônico", feedback: "Claramente uma piada, mas em um momento de bloqueio, uma sugestão prática seria mais útil." },
+                    { text: "Minhas habilidades de design são tão boas que eu faria isso parecer um panfleto de 'compre ouro'.", type: "Autodepreciativo", feedback: "Novamente, uma piada que te diminui. O ideal é usar o humor para construir, não para se anular." }
+                ]
+            },
+            // Turno 4
+            {
+                friendMessage: "Fechado! Valeu mesmo. Acho que agora vai. Tava quase surtando aqui.",
+                options: [
+                    { text: "Que isso, acontece. Pressão às vezes pega. O importante é que estamos juntos nessa. Vamos com calma que vai dar certo.", type: "Empático", feedback: "Uma resposta mais séria, mas muito eficaz. Mostrar apoio e segurança fortalece a confiança da equipe." },
+                    { text: "Surtar só depois das 18h, por favor. O sindicato dos estressados agradece. Agora vamos focar que a gente termina isso.", type: "Observacional", feedback: "Ótimo! Você usou uma brincadeira para criar uma regra fictícia e trazer o foco de volta à tarefa de forma leve." },
+                    { text: "Se você surtasse, eu ia filmar pra mostrar na festa de fim de ano. Pensa no potencial viral.", type: "Irônico", feedback: "Exagerado. Ele acabou de admitir uma vulnerabilidade, e essa piada pode fazê-lo se sentir exposto." },
+                    { text: "Imagina, eu surto umas três vezes antes do almoço. Você tá no lucro.", type: "Autodepreciativo", feedback: "Normalizar o sentimento é bom, mas as outras opções são mais eficazes para encorajar e focar no trabalho." }
+                ]
+            },
+            // Turno 5
+            {
+                friendMessage: "Beleza, tô bem mais animado agora. Mandou bem! Depois dessa, a gente merece um happy hour.",
+                options: [
+                    { text: "Com certeza! O primeiro chopp é por conta da apresentação. Agora vamos terminar essa obra de arte.", type: "Empático", feedback: "Finalização perfeita. Você comemora o bom trabalho, reforça o espírito de equipe e motiva para a conclusão." },
+                    { text: "Combinado. Mas só depois que o cliente aprovar. Não comemoro vitória antes do apito final, hahaha.", type: "Observacional", feedback: "Uma piada responsável que mostra foco e profissionalismo, sem deixar de ser amigável." },
+                    { text: "Happy hour? Achei que a gente ia comemorar trabalhando até mais tarde no próximo projeto.", type: "Irônico", feedback: "Sarcasmo pode ser um balde de água fria. Ele está animado, então o ideal é manter a energia positiva." },
+                    { text: "Fechado! Preciso de um happy hour pra esquecer as 15 versões do mesmo slide que ainda vou fazer.", type: "Autodepreciativo", feedback: "Termina com uma nota de queixa, mesmo que de brincadeira. O melhor é focar no sucesso que está por vir." }
+                ]
+            }
+        ];
+
+        let currentStep = 0;
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.classList.add('message', 'received', 'typing');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.textContent = 'Lucas está digitando...';
+            chatMessages.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const typingDiv = document.getElementById('typing-indicator');
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+        }
+
+        function displayStep(stepIndex) {
+            const step = conversationFlow[stepIndex];
+            
+            showTypingIndicator();
+
+            setTimeout(() => {
+                removeTypingIndicator();
+                addMessage(step.friendMessage, 'received');
+                
+                chatOptions.innerHTML = '';
+                step.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.classList.add('btn');
+                    button.textContent = option.text;
+                    button.onclick = () => handleOptionClick(option);
+                    chatOptions.appendChild(button);
+                });
+
+            }, 1500 + Math.random() * 1000); // Simula tempo de digitação
+        }
+
+        function handleOptionClick(option) {
+            addMessage(option.text, 'sent');
+            userChoices.push(option);
+            chatOptions.innerHTML = '<p class="text-muted w-100 text-center">Aguardando resposta...</p>';
+            
+            currentStep++;
+            if (currentStep < conversationFlow.length) {
+                displayStep(currentStep);
+            } else {
+                displayFinalFeedback();
+            }
+        }
+
+        function displayFinalFeedback() {
+             setTimeout(() => {
+                chatMessages.innerHTML = `
+                    <div id="feedback-screen">
+                        <h4 class="mb-3">Fim da Simulação!</h4>
+                        <p>Veja a análise das suas escolhas:</p>
+                        <ul class="list-group text-start">
+                            ${userChoices.map((choice, index) => `
+                                <li class="list-group-item">
+                                    <p><strong>Turno ${index + 1}:</strong> Você escolheu a opção <strong>${choice.type}</strong>.</p>
+                                    <p class="mb-0"><small>${choice.feedback}</small></p>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <p class="mt-4">Lembre-se: o melhor humor é aquele que lê o ambiente, demonstra empatia e fortalece conexões, como vimos no Tema 3.</p>
+                        <button class="btn btn-success mt-2" onclick="restartSimulation()">Refazer Simulação</button>
+                    </div>
+                `;
+                chatOptions.style.display = 'none';
+             }, 2000);
+        }
+        
+        function restartSimulation() {
+            currentStep = 0;
+            userChoices.length = 0;
+            chatMessages.innerHTML = '';
+            chatOptions.innerHTML = '';
+            chatOptions.style.display = 'grid';
+            displayStep(0);
+        }
+
+        // Inicia a conversa
+        displayStep(0);
+    </script>
+
+</body>
+</html>
+
