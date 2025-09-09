@@ -11,45 +11,108 @@
 
     <style>
         :root {
-            --cor-fundo-app: #e5ddd5;
-            --cor-fundo-tela: #f0f2f5;
+            --cor-fundo-app: #f0f2f5;
+            --cor-borda: #d1d7db;
+            --cor-header: #00a884;
             --cor-balao-enviado: #d9fdd3;
             --cor-balao-recebido: #ffffff;
-            --cor-header: #00a884;
+            --cor-verde-wa: #00a884;
         }
 
         body {
-            background-color: var(--cor-fundo-tela);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background-color: #eae6df;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            overflow: hidden; /* Evita scroll na página inteira */
         }
 
-        .mobile-frame {
-            width: 100%;
+        /* Estrutura principal imitando o WhatsApp Web */
+        .whatsapp-web-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .sidebar {
+            width: 30%;
             max-width: 400px;
-            height: 90vh;
-            max-height: 800px;
+            min-width: 300px;
             background-color: #fff;
-            border: 10px solid #111;
-            border-radius: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-right: 1px solid var(--cor-borda);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
-        .chat-header {
-            background-color: var(--cor-header);
-            color: white;
-            padding: 15px;
+        .sidebar-header {
+            padding: 10px 15px;
+            background-color: #f0f2f5;
             display: flex;
             align-items: center;
-            flex-shrink: 0;
+            border-bottom: 1px solid var(--cor-borda);
         }
         
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .contact-list {
+            overflow-y: auto;
+        }
+        
+        .contact {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        
+        .contact.active {
+            background-color: #f0f2f5;
+        }
+
+        .contact:not(.active):hover {
+            background-color: #f5f5f5;
+        }
+
+        .contact img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        
+        .contact-info .name {
+            font-weight: bold;
+        }
+        
+        .contact-info .last-message {
+            font-size: 0.9em;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .chat-container {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            background-color: #e5ddd5;
+        }
+        
+        .chat-header {
+            background-color: #f0f2f5;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
         .chat-header img {
             width: 40px;
             height: 40px;
@@ -58,24 +121,26 @@
         }
 
         .chat-header .contact-name {
-            font-weight: bold;
+            font-weight: normal;
+            font-size: 1.1em;
         }
 
         .chat-messages {
             flex-grow: 1;
             background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
 
         .message {
-            max-width: 80%;
+            max-width: 65%;
             padding: 8px 12px;
-            border-radius: 10px;
+            border-radius: 8px;
             margin-bottom: 10px;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+            font-size: 0.95em;
         }
 
         .message.sent {
@@ -93,45 +158,92 @@
             color: #888;
         }
 
+        .chat-options-container {
+            background-color: #f0f2f5;
+            padding: 20px;
+            border-top: 1px solid var(--cor-borda);
+        }
+
         .chat-options {
-            padding: 10px;
-            background-color: var(--cor-fundo-tela);
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px;
-            flex-shrink: 0;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
         }
         
         .chat-options button {
-            border-radius: 20px;
-            border: 1px solid var(--cor-header);
-            color: var(--cor-header);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9em;
+            border: 1px solid var(--cor-verde-wa);
+            background-color: #fff;
+            color: var(--cor-verde-wa);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .chat-options button:hover {
+            background-color: var(--cor-verde-wa);
+            color: #fff;
         }
 
         #feedback-screen {
-            padding: 20px;
+            background-color: #fff;
+            height: 100%;
+            padding: 30px;
             text-align: center;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
 
-    <div class="mobile-frame">
-        <div class="chat-header">
-            <img src="https://placehold.co/100x100/EFEFEF/333?text=L" alt="Avatar">
-            <div class="contact-info">
-                <div class="contact-name">Lucas</div>
+    <div class="whatsapp-web-container">
+        <!-- Sidebar com lista de contatos (fictícia) -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://placehold.co/100x100/EFEFEF/333?text=L" alt="Avatar do Usuário">
+            </div>
+            <div class="contact-list">
+                <div class="contact active">
+                    <img src="https://placehold.co/100x100/EFEFEF/333?text=L" alt="Avatar Lucas">
+                    <div class="contact-info">
+                        <div class="name">Lucas</div>
+                        <div class="last-message" id="last-message-preview">Digitando...</div>
+                    </div>
+                </div>
+                 <div class="contact">
+                    <img src="https://placehold.co/100x100/EFEFEF/333?text=A" alt="Avatar Ana">
+                    <div class="contact-info">
+                        <div class="name">Ana (RH)</div>
+                        <div class="last-message">Ok, obrigada!</div>
+                    </div>
+                </div>
+                 <div class="contact">
+                    <img src="https://placehold.co/100x100/EFEFEF/333?text=E" alt="Avatar Equipe">
+                    <div class="contact-info">
+                        <div class="name">Equipe Projeto X</div>
+                        <div class="last-message">Mariana: Pessoal, a reunião é às 15h.</div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div class="chat-messages" id="chat-messages">
-            <!-- As mensagens aparecerão aqui -->
-        </div>
 
-        <div class="chat-options" id="chat-options">
-            <!-- As opções de resposta aparecerão aqui -->
-        </div>
+        <!-- Container da conversa principal -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <img src="https://placehold.co/100x100/EFEFEF/333?text=L" alt="Avatar Lucas">
+                <div class="contact-name">Lucas</div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <!-- As mensagens aparecerão aqui -->
+            </div>
 
+            <div class="chat-options-container" id="chat-options-container">
+                <div class="chat-options" id="chat-options">
+                    <!-- As opções de resposta aparecerão aqui -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -140,9 +252,12 @@
     <script>
         const chatMessages = document.getElementById('chat-messages');
         const chatOptions = document.getElementById('chat-options');
+        const chatOptionsContainer = document.getElementById('chat-options-container');
+        const lastMessagePreview = document.getElementById('last-message-preview');
 
         const userChoices = [];
 
+        // O ROTEIRO DA CONVERSA CONTINUA O MESMO
         const conversationFlow = [
             // Turno 1
             {
@@ -207,6 +322,9 @@
             messageDiv.classList.add('message', sender);
             messageDiv.textContent = text;
             chatMessages.appendChild(messageDiv);
+            if(sender === 'sent') {
+                lastMessagePreview.textContent = `Você: ${text}`;
+            }
             scrollToBottom();
         }
 
@@ -216,6 +334,7 @@
             typingDiv.id = 'typing-indicator';
             typingDiv.textContent = 'Lucas está digitando...';
             chatMessages.appendChild(typingDiv);
+            lastMessagePreview.textContent = 'digitando...';
             scrollToBottom();
         }
 
@@ -234,6 +353,7 @@
             setTimeout(() => {
                 removeTypingIndicator();
                 addMessage(step.friendMessage, 'received');
+                lastMessagePreview.textContent = step.friendMessage;
                 
                 chatOptions.innerHTML = '';
                 step.options.forEach(option => {
@@ -244,7 +364,7 @@
                     chatOptions.appendChild(button);
                 });
 
-            }, 1500 + Math.random() * 1000); // Simula tempo de digitação
+            }, 1500 + Math.random() * 1000); 
         }
 
         function handleOptionClick(option) {
@@ -278,7 +398,8 @@
                         <button class="btn btn-success mt-2" onclick="restartSimulation()">Refazer Simulação</button>
                     </div>
                 `;
-                chatOptions.style.display = 'none';
+                chatOptionsContainer.style.display = 'none';
+                lastMessagePreview.textContent = 'Conversa finalizada.';
              }, 2000);
         }
         
@@ -287,7 +408,7 @@
             userChoices.length = 0;
             chatMessages.innerHTML = '';
             chatOptions.innerHTML = '';
-            chatOptions.style.display = 'grid';
+            chatOptionsContainer.style.display = 'block';
             displayStep(0);
         }
 
